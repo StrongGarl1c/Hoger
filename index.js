@@ -1,6 +1,5 @@
 const { MongoClient } = require("mongodb");
-const uri = "mongodb+srv://Jarko:78789893@cluster0.n3xtd.gcp.mongodb.net/Cluster0?retryWrites=true&w=majority"
-  
+const uri = "mongodb+srv://Jarko:78789893@cluster0.n3xtd.gcp.mongodb.net/Cluster0?retryWrites=true&w=majority"; 
 const client = new MongoClient(uri, { useUnifiedTopology: true });
 const express = require("express");
 const { response } = require("express");

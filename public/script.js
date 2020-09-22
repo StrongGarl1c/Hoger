@@ -6,19 +6,19 @@ document.querySelector("h1").innerText = playerName + ", Найди Дробит
 let scoreDiv = document.getElementById("scoreList");
 let innerGrid = document.getElementById("innerGrid");
 // Получить случайное число от 0 до size-1
-var getRandomNumber = function (size) {
+function getRandomNumber(size) {
   return Math.floor(Math.random() * size);
 };
 
 // Вычислить расстояние от клика (event) до клада (target)
-var getDistance = function (event, target) {
-  var diffX = event.offsetX - target.x;
-  var diffY = event.offsetY - target.y;
+function getDistance(event, target) {
+  const diffX = event.offsetX - target.x;
+  const diffY = event.offsetY - target.y;
   return Math.sqrt(diffX * diffX + diffY * diffY);
 };
 
 // Получить для расстояния строку подсказки
-var getDistanceHint = function (distance) {
+function getDistanceHint(distance) {
   if (distance < 20) {
     return "Логово Рагнароса";
   } else if (distance < 40) {
@@ -35,11 +35,11 @@ var getDistanceHint = function (distance) {
 };
 
 // Создаем переменные
-var width = 1002;
-var height = 650;
-var clicks = 0;
+const width = 1002;
+const height = 650;
+let clicks = 0;
 // Случайная позиция клада
-var target = {
+const target = {
   x: getRandomNumber(width),
   y: getRandomNumber(height),
 };
@@ -47,9 +47,9 @@ var target = {
 document.getElementById("map").addEventListener("click", function go(event) {
   clicks++;
   // Получаем расстояние от места клика до клада
-  var distance = getDistance(event, target);
+  const distance = getDistance(event, target);
   // Преобразуем расстояние в подсказку
-  var distanceHint = getDistanceHint(distance);
+  const distanceHint = getDistanceHint(distance);
   // Записываем в элемент #distance новую подсказку
   document.getElementById("distance").innerText = distanceHint;
   // Если клик был достаточно близко, поздравляем с победой
