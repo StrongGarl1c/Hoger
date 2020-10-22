@@ -1,120 +1,122 @@
-let playerName = prompt("Введите ник");
-  if (!playerName) {
-    playerName = "Player 1";
-  }
-document.querySelector("h1").innerText = playerName + ", Найди Дробителя!";
-let scoreDiv = document.getElementById("scoreList");
-let innerGrid = document.getElementById("innerGrid");
-// Получить случайное число от 0 до size-1
+let playerName = prompt('Введите ник');
+if (!playerName) {
+  playerName = 'Player 1';
+}
+document.querySelector('h1').innerText = playerName + ', Найди Дробителя!';
+let scoreDiv = document.getElementById('scoreList');
+let innerGrid = document.getElementById('innerGrid');
+//  випадкове число від 0 до size-1
 function getRandomNumber(size) {
   return Math.floor(Math.random() * size);
-};
+}
 
-// Вычислить расстояние от клика (event) до клада (target)
+// розрахунок відстані від кліка (event) до цілі (target)
 function getDistance(event, target) {
   const diffX = event.offsetX - target.x;
   const diffY = event.offsetY - target.y;
   return Math.sqrt(diffX * diffX + diffY * diffY);
-};
+}
 
-// Получить для расстояния строку подсказки
+// строка підказки для відстані
 function getDistanceHint(distance) {
   if (distance < 20) {
-    return "Логово Рагнароса";
+    return 'Логово Рагнароса';
   } else if (distance < 40) {
-    return "Пригорает";
+    return 'Пригорает';
   } else if (distance < 80) {
-    return "Тепло";
+    return 'Тепло';
   } else if (distance < 160) {
-    return "Прохладно";
+    return 'Прохладно';
   } else if (distance < 320) {
-    return "Очень холодно";
+    return 'Очень холодно';
   } else {
-    return "Холодно как в нордсколе";
+    return 'Холодно как в нордсколе';
   }
-};
+}
 
-// Создаем переменные
 const width = 1002;
 const height = 650;
 let clicks = 0;
-// Случайная позиция клада
+// випадкова позиція цілі
 const target = {
   x: getRandomNumber(width),
   y: getRandomNumber(height),
 };
-// Добавляем элементу img обработчик клика
-document.getElementById("map").addEventListener("click", function go(event) {
+// додаю addEventListener до img
+document.getElementById('map').addEventListener('click', function go(event) {
   clicks++;
-  // Получаем расстояние от места клика до клада
+  // відстань від місця кліку до цілі
   const distance = getDistance(event, target);
-  // Преобразуем расстояние в подсказку
+  // перетворюєм відстань в піказку
   const distanceHint = getDistanceHint(distance);
-  // Записываем в элемент #distance новую подсказку
-  document.getElementById("distance").innerText = distanceHint;
-  // Если клик был достаточно близко, поздравляем с победой
+  // записуєм в елемент #distance нову підказку
+  document.getElementById('distance').innerText = distanceHint;
+  // якщо клік був достатньо блиьким, поздоровляємо з перемогою
   if (distance < 25) {
     alert(
-      "Дробитель найден! Сделано кликов: " +
+      'Дробитель найден! Сделано кликов: ' +
         clicks +
-        "\nНу ты индеец, БОМ, БОМ."
+        '\nНу ты индеец, БОМ, БОМ.',
     );
-    // добавити гравця в таблицю
-    // var paragraph = document.createElement("p");
-    // var total = playerName + " " + clicks + " " + numbers(clicks);
-    // scoreDiv.appendChild(paragraph).innerText = total;
-    document.getElementById("map").removeEventListener("click", go);
+    document.getElementById('map').removeEventListener('click', go);
 
-    
-    // fetch
+    // fetch data
     const data = {
       name: playerName,
-      score: clicks
-    }
+      score: clicks,
+    };
     const options = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     };
-    fetch('/api', options)
-    .then( async res => {
-      let data = await res.json();
-      data.forEach( elem => {
+
+    // submit result
+    async function submitResult(response) {
+      response = await fetch('/submitResult/api', options);
+      const data = await response.json();
+      data.forEach((elem) => {
         scoreDiv.remove();
-        let paragraph = document.createElement("p");
-        paragraph.innerText = elem.name + "   " + elem.score + " " + numbers(elem.score);
+        let paragraph = document.createElement('p');
+        paragraph.innerText =
+          elem.name + '   ' + elem.score + ' ' + numbers(elem.score);
         innerGrid.appendChild(paragraph);
-      })
-    });    
+      });
+    }
+    submitResult().catch((err, wrn) => {
+      console.error(err);
+      console.warn(wrn);
+    });
   }
 });
 
-async function getData(){
-  const res = await fetch("/get");
+async function getData() {
+  const res = await fetch('/top15');
   const data = await res.json();
-  data.forEach( elem => {
-    let paragraph = document.createElement("p");
-    paragraph.innerText = elem.name + "   " + elem.score + " " + numbers(elem.score);
+  data.forEach((elem) => {
+    let paragraph = document.createElement('p');
+    paragraph.innerText =
+      elem.name + '   ' + elem.score + ' ' + numbers(elem.score);
     scoreDiv.appendChild(paragraph);
-  })
-}
-getData().catch( (err, wrn) => {
-   console.error(err);
-   console.warn(wrn);
   });
+}
+getData().catch((err, wrn) => {
+  console.error(err);
+  console.warn(wrn);
+});
 
 // назви кліків
 function numbers(clicks) {
   switch (clicks) {
     case 1:
-      return "клик";
+      return 'клик';
       break;
     case 2:
     case 3:
     case 4:
-      return "клика";
+      return 'клика';
       break;
     case 5:
     case 6:
@@ -132,9 +134,9 @@ function numbers(clicks) {
     case 18:
     case 19:
     case 20:
-      return "кликов";
+      return 'кликов';
       break;
     default:
-      return "много кликов :(";
+      return 'много кликов :(';
   }
 }
