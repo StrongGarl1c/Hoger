@@ -51,7 +51,7 @@ document.getElementById('map').addEventListener('click', function go(event) {
   const distanceHint = getDistanceHint(distance);
   // записуєм в елемент #distance нову підказку
   document.getElementById('distance').innerText = distanceHint;
-  // якщо клік був достатньо блиьким, поздоровляємо з перемогою
+  // якщо клік був достатньо близьким, вітаємо з перемогою
   if (distance < 25) {
     alert(
       'Дробитель найден! Сделано кликов: ' +
@@ -75,49 +75,58 @@ document.getElementById('map').addEventListener('click', function go(event) {
 
     // submit result
     async function submitResult(response) {
-      response = await fetch('/submitResult/api', options);
-      const data = await response.json();
-      data.forEach((elem) => {
-        scoreDiv.remove();
-        let paragraph = document.createElement('p');
-        paragraph.innerText =
-          elem.name + '   ' + elem.score + ' ' + numbers(elem.score);
-        innerGrid.appendChild(paragraph);
-      });
+      try {
+        response = await fetch('/submitResult/api', options);
+        const data = await response.json();
+        data.forEach((elem) => {
+          scoreDiv.remove();
+          let paragraph = document.createElement('p');
+          paragraph.innerHTML =
+            `<b>${elem.name}</b>` +
+            '   ' +
+            elem.score +
+            ' ' +
+            numbers(elem.score);
+          innerGrid.appendChild(paragraph);
+        });
+      } catch (error) {
+        console.error(error);
+      }
     }
-    submitResult().catch((err, wrn) => {
-      console.error(err);
-      console.warn(wrn);
-    });
+    setTimeout(() => {
+      if (confirm('Начать Заново?')) {
+        document.location.reload();
+      }
+    }, 5000);
+    submitResult();
   }
 });
 
 async function getData() {
-  const res = await fetch('/top15');
-  const data = await res.json();
-  data.forEach((elem) => {
-    let paragraph = document.createElement('p');
-    paragraph.innerText =
-      elem.name + '   ' + elem.score + ' ' + numbers(elem.score);
-    scoreDiv.appendChild(paragraph);
-  });
+  try {
+    const res = await fetch('/top15');
+    const data = await res.json();
+    data.forEach((elem) => {
+      let paragraph = document.createElement('p');
+      paragraph.innerHTML =
+        `<b>${elem.name}</b>` + '   ' + elem.score + ' ' + numbers(elem.score);
+      scoreDiv.appendChild(paragraph);
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
-getData().catch((err, wrn) => {
-  console.error(err);
-  console.warn(wrn);
-});
+getData();
 
 // назви кліків
 function numbers(clicks) {
   switch (clicks) {
     case 1:
       return 'клик';
-      break;
     case 2:
     case 3:
     case 4:
       return 'клика';
-      break;
     case 5:
     case 6:
     case 7:
@@ -135,7 +144,6 @@ function numbers(clicks) {
     case 19:
     case 20:
       return 'кликов';
-      break;
     default:
       return 'много кликов :(';
   }

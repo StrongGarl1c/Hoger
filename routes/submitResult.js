@@ -5,47 +5,45 @@ const { MongoClient } = require('mongodb');
 const uri = process.env.API_URI;
 const router = express.Router();
 
-router.post('/api', function (req, res) {
-  async function run() {
+router.post('/api', async function (req, res) {
+  try {
     // connect to db
     const client = new MongoClient(uri, { useUnifiedTopology: true });
     await client.connect();
     const database = client.db('treasure');
     const collection = database.collection('players');
 
-    // update data
-    const data = req.body;
-    const options = { upsert: true };
-    const query = { name: data.name };
-    const update = {
-      $set: {
-        name: data.name,
-        score: data.score,
-      },
-    };
-    collection.updateOne(query, update, options);
+    // update data if score is better
+    const { name, score } = req.body;
+    const player = await collection.findOne({ name });
 
-    // get new top 15
-    const arr = [];
-    const sort = { score: 1 };
-    const limit = 15;
-    const projection = { _id: 0, name: 1, score: 1 };
-    const cursor = collection.find().project(projection);
-    cursor.sort(sort);
-    cursor.limit(limit);
+    if (!player || score < player.score) {
+      const options = { upsert: true };
+      const query = { name };
+      const update = {
+        $set: {
+          name,
+          score,
+        },
+      };
+      collection.updateOne(query, update, options);
 
-    // send new top15 back to client
-    cursor.forEach(
-      (elem) => {
-        arr.push(elem);
-      },
-      () => {
-        client.close();
-        res.json(arr);
-      },
-    );
+      // get new top 20
+      const sort = { score: 1 };
+      const limit = 20;
+      const projection = { _id: 0, name: 1, score: 1 };
+      const cursor = collection.find().project(projection);
+      cursor.sort(sort);
+      cursor.limit(limit);
+
+      // send new top 20 back to client
+      const data = await cursor.toArray();
+      res.json(data);
+    }
+    res.status(200).send();
+  } catch (error) {
+    console.error(error);
   }
-  run().catch();
 });
 
 module.exports = router;
